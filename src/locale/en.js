@@ -47,7 +47,7 @@ export default {
   print: {
     size: 'Paper size',
     orientation: 'Page orientation',
-    orientations: ['Landscape', 'Portrait'],
+    orientations: ['Portrait', 'Landscape'],
   },
   format: {
     normal: 'Normal',

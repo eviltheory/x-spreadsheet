@@ -23,6 +23,10 @@ export default {
     autofilter: '自动筛选',
     formula: '函数',
     more: '更多',
+    checkBox: 'Check',
+    formMeta: 'Meta',
+    formBorder: '生成表格边框',
+    formGenerate: '生成表格',
   },
   contextmenu: {
     copy: '复制',
@@ -47,7 +51,7 @@ export default {
   print: {
     size: '纸张大小',
     orientation: '方向',
-    orientations: ['横向', '纵向'],
+    orientations: ['纵向', '横向'],
   },
   format: {
     normal: '正常',

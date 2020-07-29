@@ -23,6 +23,10 @@ import Undo from './undo';
 import Print from './print';
 import Textwrap from './textwrap';
 import More from './more';
+import FormBorder from './form_border';
+import FormGenerate from './form_generate';
+import FormMeta from './form_meta';
+import CheckBox from './check_box';
 
 import { h } from '../element';
 import { cssPrefix } from '../../config';
@@ -131,6 +135,13 @@ export default class Toolbar {
         this.formulaEl = new Formula(),
         this.moreEl = new More(),
       ],
+      buildDivider(),
+      [
+        this.checkBox = new CheckBox(),
+        this.formBorder = new FormBorder(),
+        this.formGenerate = new FormGenerate(),
+        this.formMeta = new FormMeta(),
+      ],
     ];
 
     this.el = h('div', `${cssPrefix}-toolbar`);
@@ -185,6 +196,7 @@ export default class Toolbar {
     if (this.isHide) return;
     const { data } = this;
     const style = data.getSelectedCellStyle();
+    const cell = data.getSelectedCell();
     // console.log('canUndo:', data.canUndo());
     this.undoEl.setState(!data.canUndo());
     this.redoEl.setState(!data.canRedo());
@@ -205,6 +217,12 @@ export default class Toolbar {
     this.alignEl.setState(style.align);
     this.valignEl.setState(style.valign);
     this.textwrapEl.setState(style.textwrap);
+    this.checkBox.setState(style.pic !== undefined);
+    let meta = '';
+    if(cell && cell.meta){
+      meta = cell.meta;
+    }
+    this.formMeta.setState(meta);
     // console.log('freeze is Active:', data.freezeIsActive());
     this.freezeEl.setState(data.freezeIsActive());
   }

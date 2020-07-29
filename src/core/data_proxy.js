@@ -111,7 +111,8 @@ const bottombarHeight = 41;
 
 // src: cellRange
 // dst: cellRange
-function canPaste(src, dst, error = () => {}) {
+function canPaste(src, dst, error = () => {
+}) {
   const { merges } = this;
   const cellRange = dst.clone();
   const [srn, scn] = src.size();
@@ -128,6 +129,7 @@ function canPaste(src, dst, error = () => {}) {
   }
   return true;
 }
+
 function copyPaste(srcCellRange, dstCellRange, what, autofill = false) {
   const { rows, merges } = this;
   // delete dest merge
@@ -179,7 +181,10 @@ function setStyleBorders({ mode, style, color }) {
   }
   if (mode === 'outside' && !multiple) {
     setStyleBorder.call(this, sri, sci, {
-      top: [style, color], bottom: [style, color], left: [style, color], right: [style, color],
+      top: [style, color],
+      bottom: [style, color],
+      left: [style, color],
+      right: [style, color],
     });
   } else if (mode === 'none') {
     selector.range.each((ri, ci) => {
@@ -297,10 +302,18 @@ function getCellRowByY(y, scrollOffsety) {
   // console.log('ri:', ri, ', top:', top, ', height:', height);
 
   if (top <= 0) {
-    return { ri: -1, top: 0, height };
+    return {
+      ri: -1,
+      top: 0,
+      height
+    };
   }
 
-  return { ri: ri - 1, top, height };
+  return {
+    ri: ri - 1,
+    top,
+    height
+  };
 }
 
 function getCellColByX(x, scrollOffsetx) {
@@ -317,9 +330,17 @@ function getCellColByX(x, scrollOffsetx) {
     i => cols.getWidth(i),
   );
   if (left <= 0) {
-    return { ci: -1, left: 0, width: cols.indexWidth };
+    return {
+      ci: -1,
+      left: 0,
+      width: cols.indexWidth
+    };
   }
-  return { ci: ci - 1, left, width };
+  return {
+    ci: ci - 1,
+    left,
+    width
+  };
 }
 
 export default class DataProxy {
@@ -343,7 +364,8 @@ export default class DataProxy {
     this.history = new History();
     this.clipboard = new Clipboard();
     this.autoFilter = new AutoFilter();
-    this.change = () => {};
+    this.change = () => {
+    };
     this.exceptRowSet = new Set();
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
@@ -409,7 +431,8 @@ export default class DataProxy {
   }
 
   // what: all | text | format
-  paste(what = 'all', error = () => {}) {
+  paste(what = 'all', error = () => {
+  }) {
     // console.log('sIndexes:', sIndexes);
     const { clipboard, selector } = this;
     if (clipboard.isClear()) return false;
@@ -426,7 +449,9 @@ export default class DataProxy {
   }
 
   pasteFromText(txt) {
-    const lines = txt.split('\r\n').map(it => it.replace(/"/g, '').split('\t'));
+    const lines = txt.split('\r\n')
+      .map(it => it.replace(/"/g, '')
+        .split('\t'));
     if (lines.length > 0) lines.length -= 1;
     const { rows, selector } = this;
     this.changeData(() => {
@@ -434,7 +459,8 @@ export default class DataProxy {
     });
   }
 
-  autofill(cellRange, what, error = () => {}) {
+  autofill(cellRange, what, error = () => {
+  }) {
     const srcRange = this.selector.range;
     if (!canPaste.call(this, srcRange, cellRange, error)) return false;
     this.changeData(() => {
@@ -459,10 +485,16 @@ export default class DataProxy {
     let [nri, nci] = [ri, ci];
     if (ri < 0) nri = rows.len - 1;
     if (ci < 0) nci = cols.len - 1;
-    if (nri > cri) [sri, eri] = [cri, nri];
-    else [sri, eri] = [nri, cri];
-    if (nci > cci) [sci, eci] = [cci, nci];
-    else [sci, eci] = [nci, cci];
+    if (nri > cri) {
+      [sri, eri] = [cri, nri];
+    } else {
+      [sri, eri] = [nri, cri];
+    }
+    if (nci > cci) {
+      [sci, eci] = [cci, nci];
+    } else {
+      [sci, eci] = [nci, cci];
+    }
     selector.range = merges.union(new CellRange(
       sri, sci, eri, eci,
     ));
@@ -496,8 +528,11 @@ export default class DataProxy {
     this.changeData(() => {
       const { selector, styles, rows } = this;
       if (property === 'merge') {
-        if (value) this.merge();
-        else this.unmerge();
+        if (value) {
+          this.merge();
+        } else {
+          this.unmerge();
+        }
       } else if (property === 'border') {
         setStyleBorders.call(this, value);
       } else if (property === 'formula') {
@@ -605,7 +640,10 @@ export default class DataProxy {
     if (!clipboard.isClear()) {
       return this.getRect(clipboard.range);
     }
-    return { left: -100, top: -100 };
+    return {
+      left: -100,
+      top: -100
+    };
   }
 
   getRect(cellRange) {
@@ -619,7 +657,11 @@ export default class DataProxy {
     // no selector
     if (sri < 0 && sci < 0) {
       return {
-        left: 0, l: 0, top: 0, t: 0, scroll,
+        left: 0,
+        l: 0,
+        top: 0,
+        t: 0,
+        scroll,
       };
     }
     const left = cols.sumWidth(0, sci);
@@ -666,12 +708,20 @@ export default class DataProxy {
         ri = merge.sri;
         ci = merge.sci;
         ({
-          left, top, width, height,
+          left,
+          top,
+          width,
+          height,
         } = this.cellRect(ri, ci));
       }
     }
     return {
-      ri, ci, left, top, width, height,
+      ri,
+      ci,
+      left,
+      top,
+      width,
+      height,
     };
   }
 
@@ -898,7 +948,11 @@ export default class DataProxy {
     }
     // console.log('data:', this.d);
     return {
-      left, top, width, height, cell,
+      left,
+      top,
+      width,
+      height,
+      cell,
     };
   }
 
@@ -1133,19 +1187,20 @@ export default class DataProxy {
   }
 
   setData(d) {
-    Object.keys(d).forEach((property) => {
-      if (property === 'merges' || property === 'rows'
-        || property === 'cols' || property === 'validations') {
-        this[property].setData(d[property]);
-      } else if (property === 'freeze') {
-        const [x, y] = expr2xy(d[property]);
-        this.freeze = [y, x];
-      } else if (property === 'autofilter') {
-        this.autoFilter.setData(d[property]);
-      } else if (d[property] !== undefined) {
-        this[property] = d[property];
-      }
-    });
+    Object.keys(d)
+      .forEach((property) => {
+        if (property === 'merges' || property === 'rows'
+          || property === 'cols' || property === 'validations') {
+          this[property].setData(d[property]);
+        } else if (property === 'freeze') {
+          const [x, y] = expr2xy(d[property]);
+          this.freeze = [y, x];
+        } else if (property === 'autofilter') {
+          this.autoFilter.setData(d[property]);
+        } else if (d[property] !== undefined) {
+          this[property] = d[property];
+        }
+      });
     return this;
   }
 

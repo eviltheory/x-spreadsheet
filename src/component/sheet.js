@@ -14,6 +14,8 @@ import SortFilter from './sort_filter';
 import { xtoast } from './message';
 import { cssPrefix } from '../config';
 import { formulas } from '../core/formula';
+import CellRange from '../core/cell_range';
+import checkPic from '../../assets/check.svg';
 
 /**
  * @desc throttle fn
@@ -476,6 +478,8 @@ function dataSetCellText(text, state = 'finished') {
   const { data, table } = this;
   // const [ri, ci] = selector.indexes;
   if (data.settings.mode === 'read') return;
+  // eslint-disable-next-line no-param-reassign
+  text = text.replace(/\\n/g, '\n');
   data.setSelectedCellText(text, state);
   const { ri, ci } = data.selector;
   if (state === 'finished') {
@@ -515,7 +519,8 @@ function insertDeleteRowColumn(type) {
 }
 
 function toolbarChange(type, value) {
-  const { data } = this;
+  console.log('toolbarChange', type, value);
+  const { data, table } = this;
   if (type === 'undo') {
     this.undo();
   } else if (type === 'redo') {
@@ -541,6 +546,73 @@ function toolbarChange(type, value) {
     } else {
       this.freeze(0, 0);
     }
+  } else if (type === 'formMeta') {
+    console.log('meta', value);
+    data.getSelectedCell().meta = value;
+  } else if (type === 'checkBox') {
+    const {
+      sri, sci,
+    } = data.selector.range;
+    const i = sri;
+    const j = sci;
+    const { style } = data.rows._[i].cells[j];
+    const newStyle = { ...data.styles[style] };
+    if (value) {
+      newStyle.pic = checkPic;
+    } else {
+      delete newStyle.pic;
+    }
+    data.rows._[i].cells[j].style = data.addStyle(newStyle);
+    console.log('check!');
+    table.render();
+  } else if (type === 'formBorder') {
+    const {
+      sri, eri, sci, eci,
+    } = data.selector.range;
+    console.log(data.rows._);
+    for (let i = sri; i <= eri; i += 1) {
+      for (let j = sci; j <= eci; j += 1) {
+        try {
+          console.log(data.rows._[i].cells[j].style);
+          data.rows._[i].cells[j].style = 0;
+        } catch (e) {
+          // console.log(i, j);
+        }
+      }
+    }
+  } else if (type === 'formGenerate') {
+    const {
+      sri, eri, sci, eci,
+    } = data.selector.range;
+    const rows = [];
+    const cols = [];
+    for (let i = sri; i <= eri; i += 1) {
+      for (let j = sci; j <= eci; j += 1) {
+        try {
+          const cell = data.rows._[i].cells[j];
+          cell && console.log(`${i},${j}`, cell);
+          if (cell) {
+            if (rows.indexOf(i) === -1) { rows.push(i); }
+            if (cols.indexOf(j) === -1) { cols.push(j); }
+          }
+        } catch (e) {
+          // console.log(i, j);
+        }
+      }
+    }
+
+    rows.forEach((row, ri) => {
+      cols.forEach((col, ci) => {
+        if (ri !== 0 && ci !== 0) {
+          const mergeRows = data.rows._[row].cells[cols[0]].merge[0];
+          const mergeCols = data.rows._[rows[0]].cells[col].merge[1];
+          data.rows._[row].cells[col] = {
+            merge: [mergeRows, mergeCols],
+          };
+          data.merges.add(new CellRange(row, col, row + mergeRows, col + mergeCols));
+        }
+      });
+    });
   } else {
     data.setSelectedCellAttr(type, value);
     if (type === 'formula' && !data.selector.multiple()) {

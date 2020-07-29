@@ -312,14 +312,22 @@ class Rows {
   maxCell() {
     const keys = Object.keys(this._);
     const ri = keys[keys.length - 1];
-    const col = this._[ri];
-    if (col) {
-      const { cells } = col;
-      const ks = Object.keys(cells);
-      const ci = ks[ks.length - 1];
-      return [parseInt(ri, 10), parseInt(ci, 10)];
+    const maxRow = parseInt(ri, 10);
+    let maxCol = 0;
+    // eslint-disable-next-line guard-for-in,no-restricted-syntax
+    for (const i in keys) {
+      const col = this._[i];
+      if (col) {
+        const { cells } = col;
+        const ks = Object.keys(cells);
+        const ci = ks[ks.length - 1];
+        const colIndex = parseInt(ci, 10);
+        if (colIndex > maxCol) {
+          maxCol = colIndex;
+        }
+      }
     }
-    return [0, 0];
+    return [maxRow, maxCol];
   }
 
   each(cb) {

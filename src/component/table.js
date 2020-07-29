@@ -72,7 +72,12 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     // bboxes.push({ ri: rindex, ci: cindex, box: dbox });
     draw.strokeBorders(dbox);
   }
+
+
   draw.rect(dbox, () => {
+    if (style.pic) {
+      draw.pic(style.pic, dbox.x, dbox.y, dbox.width, dbox.height);
+    }
     // render text
     let cellText = _cell.render(cell.text || '', formulam, (y, x) => (data.getCellTextOrDefault(x, y)));
     if (style.format) {
@@ -90,6 +95,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       strike: style.strike,
       underline: style.underline,
     }, style.textwrap);
+
     // error
     const error = data.validations.getError(rindex, cindex);
     if (error) {

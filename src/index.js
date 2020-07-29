@@ -5,8 +5,11 @@ import Sheet from './component/sheet';
 import Bottombar from './component/bottombar';
 import { cssPrefix } from './config';
 import { locale } from './locale/locale';
+import zhCN from './locale/zh-cn';
 import './index.less';
 
+import './test';
+import './test1';
 
 class Spreadsheet {
   constructor(selectors, options = {}) {
@@ -69,6 +72,7 @@ class Spreadsheet {
         nd.setData(it);
         if (i === 0) {
           this.sheet.resetData(nd);
+          this.data = nd;
         }
       }
     }
@@ -116,7 +120,7 @@ class Spreadsheet {
     locale(lang, message);
   }
 }
-
+Spreadsheet.locale('zh-cn', zhCN);
 const spreadsheet = (el, options = {}) => new Spreadsheet(el, options);
 
 if (window) {

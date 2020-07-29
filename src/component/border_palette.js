@@ -46,7 +46,7 @@ export default class BorderPalette {
             ),
             h('tr', '').children(
               ...['left', 'top', 'right', 'bottom', 'none'].map(it => buildTd.call(this, it)),
-            ),
+            )
           ),
         ),
         h('td', `${cssPrefix}-border-palette-right`).children(

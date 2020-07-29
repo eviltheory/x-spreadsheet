@@ -12,7 +12,7 @@ export default class Scrollbar {
         const { scrollTop, scrollLeft } = evt.target;
         // console.log('scrollTop:', scrollTop);
         if (this.moveFn) {
-          this.moveFn(this.vertical ? scrollTop : scrollLeft, evt);
+          this.moveFn(this.vertical ? scrollTop*3 : scrollLeft*3, evt);
         }
         // console.log('evt:::', evt);
       });

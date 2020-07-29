@@ -452,7 +452,7 @@ body {
 }
 
 .x-spreadsheet-item,
-.x-spreadsheet-header,
+.x-spreadsheet-header
 {
 
   &.state {
@@ -718,9 +718,11 @@ body {
 
 .@{css-prefix}-canvas-card-wraper {
   margin: 40px 20px;
+  text-align:center;
 }
 .@{css-prefix}-canvas-card {
   background: #fff;
+  display: inline-block;
   margin: auto;
   page-break-before: auto;
   page-break-after: always;
@@ -1236,6 +1238,14 @@ form fieldset {
     &.chevron-right {
       left: -3 * @icon-size;
       top: -3 * @icon-size;
+    }
+    &.formGenerate {
+      left: 0;
+      top: -2 * @icon-size;
+    }
+    &.formBorder {
+      left: 0;
+      top: -2 * @icon-size;
     }
   }
 }

@@ -13,17 +13,17 @@ import { t } from '../locale/locale';
 // 96 * cm / 2.54 , 96 * cm / 2.54
 
 const PAGER_SIZES = [
-  ['A3', 11.69, 16.54],
   ['A4', 8.27, 11.69],
+  ['B5', 6.93, 9.84],
+  ['A3', 11.69, 16.54],
   ['A5', 5.83, 8.27],
   ['B4', 9.84, 13.90],
-  ['B5', 6.93, 9.84],
 ];
 
-const PAGER_ORIENTATIONS = ['landscape', 'portrait'];
+const PAGER_ORIENTATIONS = ['portrait', 'landscape'];
 
 function inches2px(inc) {
-  return parseInt(96 * inc, 10);
+  return parseInt(145 * inc, 10);
 }
 
 function btnClick(type) {
@@ -111,10 +111,14 @@ export default class Print {
     const iwidth = width - padding * 2;
     const iheight = height - padding * 2;
     const cr = data.contentRange();
-    const pages = parseInt(cr.h / iheight, 10) + 1;
-    const scale = iwidth / cr.w;
-    let left = padding;
-    const top = padding;
+    console.log(iwidth,iheight);
+    console.log(cr);
+    const scale = iwidth / cr.w/ window.devicePixelRatio;
+    console.log('scale:' + scale);
+    const pages = parseInt(cr.h / iheight * scale
+      , 10) + 1;
+    let left = padding/window.devicePixelRatio;
+    const top = padding/window.devicePixelRatio;
     if (scale > 1) {
       left += (iwidth - cr.w) / 2;
     }
@@ -143,7 +147,8 @@ export default class Print {
       for (; ri <= cr.eri; ri += 1) {
         const rh = data.rows.getHeight(ri);
         th += rh;
-        if (th < iheight) {
+        if (th < iheight / scale
+        ) {
           for (let ci = 0; ci <= cr.eci; ci += 1) {
             renderCell(draw, data, ri, ci, yoffset);
             mViewRange.eci = ci;

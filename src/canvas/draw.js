@@ -138,6 +138,23 @@ class Draw {
     this.ctx.scale(dpr(), dpr());
   }
 
+  scalePreserveAspectRatio(imgW, imgH, maxW, maxH) {
+    return (Math.min((maxW / imgW), (maxH / imgH)));
+  }
+
+  pic(pic, x, y, width, height) {
+    if (pic.match('<svg')){
+      // eslint-disable-next-line no-param-reassign
+      pic = `data:image/svg+xml; charset=utf8, ${encodeURIComponent(pic)}`;
+    }
+    const img = new Image();
+    img.src = pic;
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    const sizer = this.scalePreserveAspectRatio(w, h, width, height);
+    this.ctx.drawImage(img, x, y, w * sizer, h * sizer);
+  }
+
   resize(width, height) {
     // console.log('dpr:', dpr);
     this.el.style.width = `${width}px`;
