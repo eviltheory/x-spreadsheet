@@ -320,6 +320,11 @@ function cut() {
 function paste(what, evt) {
   const { data } = this;
   if (data.settings.mode === 'read') return;
+  if (data.toolbar.current && data.toobar.input) {
+    return;
+  }
+
+  evt.preventDefault();
   if (data.paste(what, msg => xtoast('Tip', msg))) {
     sheetReset.call(this);
   } else if (evt) {
@@ -758,7 +763,6 @@ function sheetInitEvents() {
 
   bind(window, 'paste', (evt) => {
     paste.call(this, 'all', evt);
-    evt.preventDefault();
   });
 
   // for selector

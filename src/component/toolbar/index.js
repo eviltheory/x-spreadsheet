@@ -140,7 +140,7 @@ export default class Toolbar {
         this.checkBox = new CheckBox(),
         this.formBorder = new FormBorder(),
         this.formGenerate = new FormGenerate(),
-        this.formMeta = new FormMeta(),
+        this.formMeta = new FormMeta(this),
       ],
     ];
 
