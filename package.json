@@ -47,7 +47,7 @@
     "clean-webpack-plugin": "^0.1.19",
     "codecov": "^3.3.0",
     "css-loader": "^1.0.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.5.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "file-loader": "^2.0.0",
@@ -64,6 +64,7 @@
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.10.4",
     "opencollective": "^1.0.3",
     "opencollective-postinstall": "^2.0.2"
   },

@@ -10,16 +10,29 @@ export default class FormMeta extends Item {
   element() {
     const { tag } = this;
     this.meta = new FormInfo(100, 'Meta');
+    this.input = this.meta.input;
     this.meta.vchange = (e) => {
-      this.value = e.target.value;
-      this.change(this.tag, this.value);
     };
-    this.meta.input.on('focus', () => {
+    this.meta.onFocus = (e) => {
+      console.log(this.toolbar.data.getSelectedCell());
+      this.selectedCell = this.toolbar.data.getSelectedCell();
       this.toolbar.current = this;
-    });
-    this.meta.input.on('blur', () => {
+    };
+    this.meta.onBlur = (e) => {
       this.toolbar.current = null;
-    });
+      if (e.target.value !== '') {
+        try {
+          console.log(e.target.value);
+          // eslint-disable-next-line no-eval
+          const json = eval(`(${e.target.value})`);
+          this.value = json;
+          this.change(this.tag, { cell: this.selectedCell, meta: json });
+        } catch (ex) {
+          console.log(ex);
+          window.alert('Meta JSON Parse Error');
+        }
+      }
+    };
     return super.element()
       .child(this.meta.el)
       .on('click', () => this.click());
@@ -31,7 +44,7 @@ export default class FormMeta extends Item {
 
   setState(value) {
     this.value = value;
-    this.meta.val(value);
+    this.meta.val(value ? JSON.stringify(value):'');
   }
 
   toggle() {

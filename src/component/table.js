@@ -313,6 +313,7 @@ class Table {
   }
 
   render() {
+    console.log('render');
     // resize canvas
     const { data } = this;
     const { rows, cols } = data;

@@ -142,17 +142,26 @@ class Draw {
     return (Math.min((maxW / imgW), (maxH / imgH)));
   }
 
+
   pic(pic, x, y, width, height) {
-    if (pic.match('<svg')){
-      // eslint-disable-next-line no-param-reassign
-      pic = `data:image/svg+xml; charset=utf8, ${encodeURIComponent(pic)}`;
+    let img;
+    if (pic instanceof Image){
+      img = pic;
+    } else {
+      if (pic.match('<svg')) {
+        // eslint-disable-next-line no-param-reassign
+        pic = `data:image/svg+xml; charset=utf8, ${encodeURIComponent(pic)}`;
+      }
+      img = new Image();
+      img.src = pic;
     }
-    const img = new Image();
-    img.src = pic;
     const w = img.naturalWidth;
     const h = img.naturalHeight;
     const sizer = this.scalePreserveAspectRatio(w, h, width, height);
-    this.ctx.drawImage(img, x, y, w * sizer, h * sizer);
+    console.log(img,x,y,w,h, sizer);
+    const ratio = window.devicePixelRatio;
+    this.ctx.drawImage(img, x*ratio, y*ratio, w*ratio * sizer, h *ratio* sizer);
+    //this.ctx.drawImage(img, x, y, width, height);
   }
 
   resize(width, height) {

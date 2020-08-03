@@ -15,7 +15,6 @@ import { xtoast } from './message';
 import { cssPrefix } from '../config';
 import { formulas } from '../core/formula';
 import CellRange from '../core/cell_range';
-import checkPic from '../../assets/check.svg';
 
 /**
  * @desc throttle fn
@@ -70,17 +69,24 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = false) {
     table, selector, toolbar, data,
     contextMenu,
   } = this;
+  data.prevSelector = { ...data.selector };
+
   contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   const cell = data.getCell(ri, ci);
   if (multiple) {
     selector.setEnd(ri, ci, moving);
     this.trigger('cells-selected', cell, selector.range);
   } else {
+    if (data.settings.mode !== 'read' && cell && cell.meta && cell.meta.checkbox !== undefined){
+      data.checkbox(ri, ci, !cell.meta.checkbox);
+      setTimeout(() => table.render(), 200);
+    }
     // trigger click event
     selector.set(ri, ci, indexesUpdated);
     this.trigger('cell-selected', cell, ri, ci);
   }
   toolbar.reset();
+
   table.render();
 }
 
@@ -320,7 +326,8 @@ function cut() {
 function paste(what, evt) {
   const { data } = this;
   if (data.settings.mode === 'read') return;
-  if (data.toolbar.current && data.toobar.input) {
+  console.log(this.toolbar.current);
+  if (this.toolbar.current && this.toolbar.current.input) {
     return;
   }
 
@@ -435,6 +442,12 @@ function editorSetOffset() {
 function editorSet() {
   const { editor, data } = this;
   if (data.settings.mode === 'read') return;
+  if (data.settings.mode === 'fill') {
+    const cell = data.getSelectedCell();
+    if (!(cell && cell.meta && cell.meta.editable === true)) {
+      return;
+    }
+  }
   editorSetOffset.call(this);
   editor.setCell(data.getSelectedCell(), data.getSelectedValidator());
   clearClipboard.call(this);
@@ -553,22 +566,16 @@ function toolbarChange(type, value) {
     }
   } else if (type === 'formMeta') {
     console.log('meta', value);
-    data.getSelectedCell().meta = value;
+    if(value.cell) {
+      value.cell.meta = value.meta;
+    }
   } else if (type === 'checkBox') {
     const {
       sri, sci,
     } = data.selector.range;
     const i = sri;
     const j = sci;
-    const { style } = data.rows._[i].cells[j];
-    const newStyle = { ...data.styles[style] };
-    if (value) {
-      newStyle.pic = checkPic;
-    } else {
-      delete newStyle.pic;
-    }
-    data.rows._[i].cells[j].style = data.addStyle(newStyle);
-    console.log('check!');
+    data.checkbox(i, j, value);
     table.render();
   } else if (type === 'formBorder') {
     const {
@@ -681,6 +688,10 @@ function sheetInitEvents() {
     });
 
   selector.inputChange = (v) => {
+    if (!this.data.selectedCellEditable()) {
+      console.log('Not editable!');
+      return;
+    }
     dataSetCellText.call(this, v, 'input');
     editorSet.call(this);
   };
@@ -791,8 +802,10 @@ function sheetInitEvents() {
           break;
         case 67:
           // ctrl + c
-          copy.call(this);
-          evt.preventDefault();
+          if (!this.data.toolbar.current) {
+            copy.call(this);
+            evt.preventDefault();
+          }
           break;
         case 88:
           // ctrl + x
@@ -897,15 +910,19 @@ function sheetInitEvents() {
       }
 
       if (key === 'Delete') {
-        insertDeleteRowColumn.call(this, 'delete-cell-text');
+        if (this.data.selectedCellEditable()) {
+          insertDeleteRowColumn.call(this, 'delete-cell-text');
+        }
         evt.preventDefault();
       } else if ((keyCode >= 65 && keyCode <= 90)
         || (keyCode >= 48 && keyCode <= 57)
         || (keyCode >= 96 && keyCode <= 105)
         || evt.key === '='
       ) {
-        dataSetCellText.call(this, evt.key, 'input');
-        editorSet.call(this);
+        if (this.data.selectedCellEditable()) {
+          dataSetCellText.call(this, evt.key, 'input');
+          editorSet.call(this);
+        }
       } else if (keyCode === 113) {
         // F2
         editorSet.call(this);

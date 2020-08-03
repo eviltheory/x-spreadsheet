@@ -10,9 +10,19 @@ export default class FormInfo extends Element {
     this.input = h('input', '').css('width', width)
       .on('input', evt => this.vchange(evt))
       .attr('placeholder', hint);
+    this.input.on('focus', (e) =>{
+      this.onFocus(e);
+    });
+    this.input.on('blur', (e) =>{
+      this.onBlur(e);
+    });
     console.log(this);
     this.el.child(this.input);
   }
+
+  onFocus() {}
+
+  onBlur() {}
 
   focus() {
     setTimeout(() => {

@@ -13,6 +13,7 @@ import { Validations } from './validation';
 import { CellRange } from './cell_range';
 import { expr2xy, xy2expr } from './alphabet';
 import { t } from '../locale/locale';
+import checkPic from '../../assets/check.svg';
 
 // private methods
 /*
@@ -102,6 +103,9 @@ const defaultSettings = {
       italic: false,
     },
     format: 'normal',
+  },
+  pics: {
+    check: checkPic,
   },
 };
 
@@ -305,14 +309,14 @@ function getCellRowByY(y, scrollOffsety) {
     return {
       ri: -1,
       top: 0,
-      height
+      height,
     };
   }
 
   return {
     ri: ri - 1,
     top,
-    height
+    height,
   };
 }
 
@@ -333,19 +337,28 @@ function getCellColByX(x, scrollOffsetx) {
     return {
       ci: -1,
       left: 0,
-      width: cols.indexWidth
+      width: cols.indexWidth,
     };
   }
   return {
     ci: ci - 1,
     left,
-    width
+    width,
   };
 }
 
 export default class DataProxy {
   constructor(name, settings) {
     this.settings = helper.merge(defaultSettings, settings || {});
+
+    const data = this;
+    Object.keys(this.settings.pics).forEach(key => {
+      const val = data.settings.pics[key];
+      fetch(val).then(response=>response.text()).then(x => {
+        data.settings.pics[key] = x;
+        console.log(data.settings.pics);
+      });
+    });
     // save data begin
     this.name = name || 'sheet';
     this.freeze = [0, 0];
@@ -524,6 +537,35 @@ export default class DataProxy {
     return cellRange;
   }
 
+  selectedCellEditable() {
+    if (this.settings.mode === 'read') {
+      return false;
+    }
+    if (this.settings.mode === 'fill') {
+      const cell = this.getSelectedCell();
+      if (cell?.meta?.editable !== true) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  checkbox(row, col, value) {
+    const cell = this.rows._[row].cells[col];
+    if(cell.meta === undefined){
+      cell.meta = {};
+    }
+    cell.meta.checkbox = value;
+    const newStyle = { ...this.styles[cell.style] };
+    if (value) {
+      newStyle.pic = this.settings.pics['check'];
+    } else {
+      delete newStyle.pic;
+    }
+    this.rows._[row].cells[col].style = this.addStyle(newStyle);
+    console.log('check!', value);
+  }
+
   setSelectedCellAttr(property, value) {
     this.changeData(() => {
       const { selector, styles, rows } = this;
@@ -642,7 +684,7 @@ export default class DataProxy {
     }
     return {
       left: -100,
-      top: -100
+      top: -100,
     };
   }
 
