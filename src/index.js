@@ -7,6 +7,8 @@ import { cssPrefix } from './config';
 import { locale } from './locale/locale';
 import zhCN from './locale/zh-cn';
 import './index.less';
+import DataCenter from './datacenter';
+import moment from 'moment';
 
 import './test';
 import './test1';
@@ -17,6 +19,7 @@ class Spreadsheet {
     this.options = options;
     this.sheetIndex = 1;
     this.datas = [];
+    this.dataCenter = new DataCenter();
     if (typeof selectors === 'string') {
       targetEl = document.querySelector(selectors);
     }
@@ -76,6 +79,8 @@ class Spreadsheet {
         }
       }
     }
+    this.data.dataCenter = this.dataCenter;
+    this.dataCenter.init(this);
     return this;
   }
 
@@ -126,7 +131,9 @@ const spreadsheet = (el, options = {}) => new Spreadsheet(el, options);
 if (window) {
   window.x_spreadsheet = spreadsheet;
   window.x_spreadsheet.locale = (lang, message) => locale(lang, message);
+  window.moment = moment;
 }
+
 
 export default Spreadsheet;
 export {

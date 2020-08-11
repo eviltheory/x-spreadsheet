@@ -441,13 +441,7 @@ function editorSetOffset() {
 
 function editorSet() {
   const { editor, data } = this;
-  if (data.settings.mode === 'read') return;
-  if (data.settings.mode === 'fill') {
-    const cell = data.getSelectedCell();
-    if (!(cell && cell.meta && cell.meta.editable === true)) {
-      return;
-    }
-  }
+  if (!data.selectedCellEditable()) return;
   editorSetOffset.call(this);
   editor.setCell(data.getSelectedCell(), data.getSelectedValidator());
   clearClipboard.call(this);
@@ -692,6 +686,7 @@ function sheetInitEvents() {
       console.log('Not editable!');
       return;
     }
+    //this.data.dataCenter.cellChange();
     dataSetCellText.call(this, v, 'input');
     editorSet.call(this);
   };

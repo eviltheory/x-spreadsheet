@@ -352,9 +352,9 @@ export default class DataProxy {
     this.settings = helper.merge(defaultSettings, settings || {});
 
     const data = this;
-    Object.keys(this.settings.pics).forEach(key => {
+    Object.keys(this.settings.pics).forEach((key) => {
       const val = data.settings.pics[key];
-      fetch(val).then(response=>response.text()).then(x => {
+      fetch(val).then(response => response.text()).then((x) => {
         data.settings.pics[key] = x;
         console.log(data.settings.pics);
       });
@@ -542,8 +542,8 @@ export default class DataProxy {
       return false;
     }
     if (this.settings.mode === 'fill') {
-      const cell = this.getSelectedCell();
-      if (cell?.meta?.editable !== true) {
+      const { sri, sci } = this.selector.range;
+      if (!this.dataCenter.cellEditable(sri, sci)) {
         return false;
       }
     }
@@ -551,19 +551,34 @@ export default class DataProxy {
   }
 
   checkbox(row, col, value) {
+
     const cell = this.rows._[row].cells[col];
-    if(cell.meta === undefined){
+    const oldCell = {
+      ...cell,
+      meta: { ...cell.meta },
+    };
+    const change = {
+      row, col, type: 'checkbox', cell, oldCell, newCheckbox: value,
+    };
+    const preChangeResult = this.dataCenter.cellPreChange(change);
+    console.log('preChange', change, preChangeResult);
+    if (preChangeResult === false || preChangeResult?.result === false) {
+      return;
+    }
+    if (cell.meta === undefined) {
       cell.meta = {};
     }
     cell.meta.checkbox = value;
     const newStyle = { ...this.styles[cell.style] };
     if (value) {
-      newStyle.pic = this.settings.pics['check'];
+      newStyle.pic = this.settings.pics.check;
     } else {
       delete newStyle.pic;
     }
     this.rows._[row].cells[col].style = this.addStyle(newStyle);
-    console.log('check!', value);
+
+    const postChangeResult = this.dataCenter.cellPostChange(change);
+    console.log('postChange', change, postChangeResult);
   }
 
   setSelectedCellAttr(property, value) {
@@ -620,7 +635,10 @@ export default class DataProxy {
             || property === 'color' || property === 'bgcolor') {
             cstyle[property] = value;
             cell.style = this.addStyle(cstyle);
-          } else {
+          } else if (property === 'editable'){
+            cell.meta = cell.meta || {};
+            cell.meta.editable = value;
+          }else{
             cell[property] = value;
           }
         });
@@ -636,9 +654,21 @@ export default class DataProxy {
     if (this.unsortedRowMap.has(ri)) {
       nri = this.unsortedRowMap.get(ri);
     }
-    const oldCell = rows.getCell(nri, ci);
-    const oldText = oldCell ? oldCell.text : '';
-    this.setCellText(nri, ci, text, state);
+    const cell = rows.getCell(nri, ci);
+    const oldText = cell ? cell.text : '';
+    const oldCell = {
+      ...cell,
+      meta: { ...cell.meta },
+    };
+    const change = {
+      ri, ci, type: 'text', cell, oldCell, newText: text, state,
+    };
+    const preChangeResult = this.dataCenter.cellPreChange(change);
+    console.log('preChange', change, preChangeResult);
+    if (preChangeResult === false || preChangeResult?.result === false) {
+      return;
+    }
+    this.setCellText(nri, ci, change.newText, state);
     // replace filter.value
     if (autoFilter.active()) {
       const filter = autoFilter.getFilter(ci);
@@ -650,6 +680,8 @@ export default class DataProxy {
         // console.log('filter:', filter, oldCell);
       }
     }
+    const postChangeResult = this.dataCenter.cellPostChange(change);
+    console.log('postChange', change, postChangeResult);
     // this.resetAutoFilter();
   }
 

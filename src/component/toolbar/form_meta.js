@@ -9,7 +9,7 @@ export default class FormMeta extends Item {
 
   element() {
     const { tag } = this;
-    this.meta = new FormInfo(100, 'Meta');
+    this.meta = new FormInfo('300px', 'Meta');
     this.input = this.meta.input;
     this.meta.vchange = (e) => {
     };
